@@ -77,7 +77,7 @@ public abstract class Formatters {
    * @return
    */
   public static String number(final String str) {
-    final var parts = str.split("\\.");
+    final String[] parts = str.split("\\.");
     return StringUtils.nvl(parts[0]).trim()
         .replaceAll("[^\\d|\\-]", "")
         .replaceFirst("^0+(?!$)", "")

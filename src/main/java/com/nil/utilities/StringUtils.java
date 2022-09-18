@@ -5,6 +5,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class StringUtils {
 
@@ -50,10 +54,10 @@ public abstract class StringUtils {
     if(source == null) return "";
     if(oldPart == null || newPart == null) return source;
 
-    var sb = new StringBuilder();
-    var last = 0;
+    StringBuilder sb = new StringBuilder();
+    int last = 0;
     while (true) {
-      var start = source.indexOf(oldPart, last);
+      int start = source.indexOf(oldPart, last);
       if (start >= 0) {
         sb.append(source.substring(last, start));
         sb.append(newPart);
@@ -64,6 +68,27 @@ public abstract class StringUtils {
         return sb.toString();
       }
     }
+  }
+
+  /**
+   * 주어진 문자열에서 정규식에 매치되는 문자열을 전달된 replacer 함수를 호출하여 변환후 반환합니다
+   * @param source
+   * @param pattern
+   * @param replacer
+   * @return
+   */
+  public final static String replace(
+      final String source, final Pattern pattern, final Function<Matcher, String> replacer
+  ) {
+    final Matcher matcher = pattern.matcher(source);
+    final StringBuffer result = new StringBuffer();
+
+    while(matcher.find()) {
+      matcher.appendReplacement(result, replacer.apply(matcher));
+    }
+    matcher.appendTail(result);
+
+    return result.toString();
   }
 
   /**
@@ -119,7 +144,11 @@ public abstract class StringUtils {
    * @return
    */
   public static final String encodeUrl(final String text) {
-    return URLEncoder.encode(text, CommonUtils.DEFAULT_CHARSET).replaceAll("\\+", "%20");
+    try {
+      return URLEncoder.encode(text, CommonUtils.DEFAULT_ENCODING).replaceAll("\\+", "%20");
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 
   /**
@@ -128,7 +157,11 @@ public abstract class StringUtils {
    * @return
    */
   public static final String decodeUrl(final String text) {
-    return URLDecoder.decode(text, CommonUtils.DEFAULT_CHARSET);
+    try {
+      return URLDecoder.decode(text, CommonUtils.DEFAULT_ENCODING);
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 
   /**
@@ -185,7 +218,9 @@ public abstract class StringUtils {
    * @return
    */
   public final static String toCamelCase(final String source) {
-    return Formatters.CAMEL_PATTERN.matcher(source.toLowerCase()).replaceAll(m -> m.group(1));
+    return Formatters.CAMEL_PATTERN.matcher(source.toLowerCase()).find()
+        ? replace(source.toLowerCase(), Formatters.CAMEL_PATTERN, (m) -> m.group(1).toUpperCase())
+        : source;
   }
 
   /**
@@ -195,7 +230,7 @@ public abstract class StringUtils {
    * @return
    */
   public final static String repeat(final String in, final int count) {
-    final var	out	= new StringBuilder(in.length() * count);
+    final StringBuilder	out	= new StringBuilder(in.length() * count);
 
     for(int i = 0;i < count;i++) out.append(in);
 
@@ -211,14 +246,14 @@ public abstract class StringUtils {
     return shuffle(in, 1);
   }
   public final static String shuffle(final String in, final int loop) {
-    final var out = new StringBuilder(in);
-    final var chars = new ArrayList<Character>();
+    final StringBuilder out = new StringBuilder(in);
+    final ArrayList<Character> chars = new ArrayList<>();
 
     for(int i = 0;i < loop;i++) {
-      final var org = out.toString();
+      final String org = out.toString();
 
       out.setLength(0);
-      for(final var c : org.toCharArray())
+      for(final char c : org.toCharArray())
         chars.add(c);
 
       while(!chars.isEmpty())
@@ -244,7 +279,7 @@ public abstract class StringUtils {
    * @return
    */
   public final static String getRandomString(final int length, final boolean isSpecialChars) {
-    var	str	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" +
+    String str	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" +
         (isSpecialChars ? "`~!@#$%^&*()_+<>,./" : "");
     str	= shuffle(str);
     str	= repeat(str, 5);

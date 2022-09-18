@@ -52,7 +52,7 @@ public abstract class AsyncUtils {
    * @return
    */
   public static List<Object> promiseAll(final Supplier<Object>... suppliers) {
-    final var futures = getSuppliers(suppliers);
+    final CompletableFuture[] futures = getSuppliers(suppliers);
 
     executeSupplier(futures);
 

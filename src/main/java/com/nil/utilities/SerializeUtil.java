@@ -10,8 +10,8 @@ public class SerializeUtil {
 
   public static final String serialized(final Object data) throws IOException {
     try (
-        var os = new ByteArrayOutputStream();
-        var oos = new ObjectOutputStream(os)
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(os)
     ) {
       oos.writeObject(data);
 
@@ -24,8 +24,8 @@ public class SerializeUtil {
   public static final <T> T deserialized(String serialized, Class<T> type)
       throws IOException, ClassNotFoundException {
     try (
-        var is = new ByteArrayInputStream(StringUtils.decodeBase64(serialized));
-        var ois = new ObjectInputStream(is)
+        ByteArrayInputStream is = new ByteArrayInputStream(StringUtils.decodeBase64(serialized));
+        ObjectInputStream ois = new ObjectInputStream(is)
     ) {
       return type.cast(ois.readObject());
     } catch (IOException | ClassNotFoundException e) {

@@ -23,13 +23,15 @@ public abstract class StreamUtils {
   public final static Stream stream(final Object o) {
     if (!CommonUtils.isIterable(o)) return null;
 
-    return Iterable.class.isAssignableFrom(o.getClass())
-        ? iterableAsStream((Iterable) o)
-        : o.getClass().isArray()
-            ? Arrays.stream((Object[]) o)
-            : Enumeration.class.isAssignableFrom(o.getClass())
-                ? enumerationAsStream((Enumeration) o)
-                : iteratorAsStream((Iterator) o);
+    return Stream.class.isAssignableFrom(o.getClass())
+      ? (Stream) o
+      : Iterable.class.isAssignableFrom(o.getClass())
+          ? iterableAsStream((Iterable) o)
+          : o.getClass().isArray()
+              ? Arrays.stream((Object[]) o)
+              : Enumeration.class.isAssignableFrom(o.getClass())
+                  ? enumerationAsStream((Enumeration) o)
+                  : iteratorAsStream((Iterator) o);
   }
 
   /**

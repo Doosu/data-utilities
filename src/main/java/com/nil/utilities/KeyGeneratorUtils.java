@@ -43,16 +43,16 @@ public abstract class KeyGeneratorUtils {
    * @return
    */
   public static final KeyPair generateEcKey() {
-    final var ellipticCurve = new EllipticCurve(
+    final EllipticCurve ellipticCurve = new EllipticCurve(
         new ECFieldFp(new BigInteger("115792089210356248762697446949407573530086143415290314195533631308867097853951")),
         new BigInteger("115792089210356248762697446949407573530086143415290314195533631308867097853948"),
         new BigInteger("41058363725152142129326129780047268409114441015993725554835256314039467401291")
     );
-    final var point = new ECPoint(
+    final ECPoint point = new ECPoint(
         new BigInteger("48439561293906451759052585252797914202762949526041747995844080717082404635286"),
         new BigInteger("36134250956749795798585127919587881956611106672985015071877198253568414405109")
     );
-    final var spec = new ECParameterSpec(
+    final ECParameterSpec spec = new ECParameterSpec(
         ellipticCurve,
         point,
         new BigInteger("115792089210356248762697446949407573529996955224135760342422259061068512044369"),
@@ -60,7 +60,7 @@ public abstract class KeyGeneratorUtils {
     );
 
     try {
-      final var keyPairGenerator = KeyPairGenerator.getInstance("EC");
+      final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
       keyPairGenerator.initialize(spec);
 
       return keyPairGenerator.generateKeyPair();

@@ -70,7 +70,7 @@ public abstract class DateUtils {
       default: return null;
     }
 
-    final var tmpFormat = new java.text.SimpleDateFormat("yyyyMMddHHmmss", java.util.Locale.KOREA);
+    final java.text.SimpleDateFormat tmpFormat = new java.text.SimpleDateFormat("yyyyMMddHHmmss", java.util.Locale.KOREA);
     tmpFormat.setLenient(true);
 
     return tmpFormat.parse(date);

@@ -78,6 +78,7 @@ public abstract class CommonUtils {
   public static final boolean isIterable(final Object o) {
     return null != o && (
         o.getClass().isArray() ||
+            Stream.class.isAssignableFrom(o.getClass()) ||
             Iterable.class.isAssignableFrom(o.getClass()) ||
             Iterator.class.isAssignableFrom(o.getClass()) ||
             Enumeration.class.isAssignableFrom(o.getClass())
@@ -104,11 +105,11 @@ public abstract class CommonUtils {
   public static Object decode(final Object ... args) {
     if (1 >= args.length) return "";
 
-    final var val = args[0];
-    final var def = 0 == args.length % 2 ? args[args.length - 1] : "";
-    final var wheres = IntStream.range(1, args.length - 1).filter(i -> 1 == i % 2)
+    final Object val = args[0];
+    final Object def = 0 == args.length % 2 ? args[args.length - 1] : "";
+    final List<Object> wheres = IntStream.range(1, args.length - 1).filter(i -> 1 == i % 2)
         .mapToObj(i -> args[i]).collect(Collectors.toList());
-    final var values = IntStream.range(1, args.length - 1).filter(i -> 0 == i % 2)
+    final List<Object> values = IntStream.range(1, args.length).filter(i -> 0 == i % 2)
         .mapToObj(i -> args[i]).collect(Collectors.toList());
 
     return IntStream.range(0, wheres.size()).filter(i -> val.equals(wheres.get(i)))
@@ -136,7 +137,7 @@ public abstract class CommonUtils {
    */
   public static String rsaEncrypt(final String plainText, final Key key) {
     try {
-      final var cipher = Cipher.getInstance("RSA");
+      final Cipher cipher = Cipher.getInstance("RSA");
       cipher.init(Cipher.ENCRYPT_MODE, key);
 
       return StringUtils.encodeBase64(cipher.doFinal(plainText.getBytes()));
@@ -153,13 +154,13 @@ public abstract class CommonUtils {
    */
   public static String rsaDecrypt(final String encodedText, final Key key) {
     try {
-      final var cipher = Cipher.getInstance("RSA");
+      final Cipher cipher = Cipher.getInstance("RSA");
       cipher.init(Cipher.DECRYPT_MODE, key);
-      final var urlSafeBase64 = StringUtils.replace(
-          StringUtils.replace(URLDecoder.decode(encodedText, DEFAULT_CHARSET), "%20", "+"),
+      final String urlSafeBase64 = StringUtils.replace(
+          StringUtils.replace(URLDecoder.decode(encodedText, DEFAULT_ENCODING), "%20", "+"),
           " ", "+"
       );
-      final var decoded = cipher.doFinal(StringUtils.decodeBase64(urlSafeBase64));
+      final byte[] decoded = cipher.doFinal(StringUtils.decodeBase64(urlSafeBase64));
       return new String(decoded, DEFAULT_CHARSET);
     } catch (Exception e) {
       throw new RuntimeException(e);
